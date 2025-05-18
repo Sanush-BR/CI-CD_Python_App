@@ -4,9 +4,8 @@
 name: Python application CI
 
 on:
-  push:
-    branches: ["main"]
-
+  workflow_call:
+  
 permissions:
   contents: read
   actions: read
