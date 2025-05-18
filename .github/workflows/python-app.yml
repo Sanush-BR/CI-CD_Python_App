@@ -5,11 +5,6 @@ name: Python application CI
 
 on:
   workflow_call:
-  
-permissions:
-  contents: read
-  actions: read
-  checks: write
 
 jobs:
   build:
