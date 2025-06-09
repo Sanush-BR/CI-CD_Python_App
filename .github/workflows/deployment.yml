@@ -1,35 +1,57 @@
 name: Deploy to EC2
-on:
+'on':
   push:
     branches:
-      - main
-
+      - ''
 jobs:
+  integration:
+    uses: ./.github/workflows/python-app.yml
+    permissions:
+      contents: read
+      checks: write
+  package_publish:
+    uses: ./.github/workflows/docker-publish.yml
+    permissions:
+      contents: read
+      checks: write
+  build:
+    needs: [integration , package_publish ]
+      
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
+          host: '${{ secrets.EC2_HOST }}'
+          username: '${{ secrets.EC2_USERNAME }}'
+          key: '${{ secrets.EC2_SSH_KEY }}'
+          script: >
             echo "Logging into GHCR..."
-            echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
-            
+
+            echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{
+            secrets.GHCR_USERNAME }} --password-stdin
+
+
             echo "Pulling latest Docker image..."
-            docker pull ghcr.io/${{ secrets.GHCR_USERNAME }}/ci-cd_python_app:latest
-            
+
+            docker pull ghcr.io/${{ secrets.GHCR_USERNAME
+            }}/ci-cd_python_app:latest
+
+
             echo "Stopping old container (if running)..."
+
             docker stop my-app || true
+
             docker rm my-app || true
 
+
             echo "Running new container..."
-            docker run -d --restart=always --name my-app -p 80:80 ghcr.io/${{ secrets.GHCR_USERNAME }}/ci-cd_python_app:latest
+
+            docker run -d --restart=always --name my-app -p 80:80 ghcr.io/${{
+            secrets.GHCR_USERNAME }}/ci-cd_python_app:latest
+
 
             echo "Deployment complete!"
