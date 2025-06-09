@@ -14,10 +14,8 @@ jobs:
     permissions:
       contents: read
       checks: write
-  build:
-    needs: [integration , package_publish ]
-      
   deploy:
+    needs: [integration , package_publish ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
