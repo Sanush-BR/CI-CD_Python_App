@@ -2,7 +2,7 @@ name: Deploy to EC2
 'on':
   push:
     branches:
-      - 'main'
+      - ' '
 jobs:
   integration:
     uses: ./.github/workflows/python-app.yml
@@ -34,12 +34,9 @@ jobs:
             echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{
             secrets.GHCR_USERNAME }} --password-stdin
 
-
             echo "Pulling latest Docker image..."
 
-            docker pull ghcr.io/${{ secrets.GHCR_USERNAME
-            }}/ci-cd_python_app:latest
-
+            docker pull ghcr.io/${{secrets.secrets.GHCR_USERNAME}}/${{secrets.DOCKER_IMG_TAG}}
 
             echo "Stopping old container (if running)..."
 
@@ -54,4 +51,4 @@ jobs:
             secrets.GHCR_USERNAME }}/ci-cd_python_app:latest
 
 
-            echo "Deployment complete!"
+            echo "Deployment completed!"
