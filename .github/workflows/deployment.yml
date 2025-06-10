@@ -32,25 +32,20 @@ jobs:
             echo "login to root user"
             sudo su - root
           
-            echo "Logging into GHCR..."
-
-            echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{
-            secrets.GHCR_USERNAME }} --password-stdin
-
-            echo "Pulling latest Docker image..."
-
-            docker pull ghcr.io/${{secrets.secrets.GHCR_USERNAME}}/${{secrets.DOCKER_IMG_TAG}}
-
             echo "Deleting the previous images & containers."
-
             docker stop $(docker ps -aq)
             docker rm $(docker ps -aq)
             docker rmi $(docker images -q)
             
+            echo "Logging into GHCR..."
+            echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{
+            secrets.GHCR_USERNAME }} --password-stdin
+      
+            echo "Pulling latest Docker image..."
+            docker pull ghcr.io/${{secrets.secrets.GHCR_USERNAME}}/${{secrets.DOCKER_IMG_TAG}}
+            
             echo "Running new container..."
 
-            docker run -d --restart=always --name my-app -p 80:80 ghcr.io/${{
-            secrets.GHCR_USERNAME }}/ci-cd_python_app:latest
-
+            docker run -d -p ${{secrets.PORT}}:8085 ghcr.io/${{secrets.DOCKER_IMG_TAG}} 
 
             echo "Deployment completed!"
