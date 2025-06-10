@@ -29,6 +29,9 @@ jobs:
           username: '${{ secrets.EC2_USERNAME }}'
           key: '${{ secrets.EC2_SSH_KEY }}'
           script: >
+            echo "login to root user"
+            sudo su - root
+          
             echo "Logging into GHCR..."
 
             echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{
@@ -38,13 +41,12 @@ jobs:
 
             docker pull ghcr.io/${{secrets.secrets.GHCR_USERNAME}}/${{secrets.DOCKER_IMG_TAG}}
 
-            echo "Stopping old container (if running)..."
+            echo "Deleting the previous images & containers."
 
-            docker stop my-app || true
-
-            docker rm my-app || true
-
-
+            docker stop $(docker ps -aq)
+            docker rm $(docker ps -aq)
+            docker rmi $(docker images -q)
+            
             echo "Running new container..."
 
             docker run -d --restart=always --name my-app -p 80:80 ghcr.io/${{
